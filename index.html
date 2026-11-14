@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>The Sun Vault</title>
+<link rel="icon" type="image/png" sizes="256x256" href="assets/higgsfield/explorer-portrait.png">
+<style>
+  html,body{margin:0;padding:0;background:#0b0d1a;overflow:hidden;height:100%;
+    font-family:Georgia,'Times New Roman',serif;-webkit-tap-highlight-color:transparent;
+    touch-action:none;user-select:none}
+  #game{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  #hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#ffe9b088;
+    font-size:12px;letter-spacing:2px;z-index:5;text-transform:uppercase}
+  /* cinematic overlay */
+  #cine{position:fixed;inset:0;background:#000;display:none;z-index:20}
+  #roomLoop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+  #cineStage{position:absolute;inset:0;background:#000}
+  #endingFilm{width:100%;height:100%;object-fit:contain}
+  #speech{box-sizing:border-box;width:min(500px,94vw);max-height:92vh;padding:18px 22px 16px;color:#463225;
+    background:#fff4df;border:3px solid #593d2a;border-radius:24px;box-shadow:0 5px 0 #362418,0 16px 45px #160d0844}
+  #speech::backdrop{background:#20140875}
+  .speech-body{display:grid;grid-template-columns:clamp(66px,18vw,100px) 1fr;align-items:center;gap:16px}
+  #speech .portrait{width:100%;aspect-ratio:1;object-fit:cover;border-radius:30% 38% 32% 36%;background:#d6e9d6}
+  #speaker{display:inline-block;font: bold 14px Georgia,serif;color:#315e54;background:#dcebdc;border-radius:1em;padding:4px 12px}
+  #speech p{font:18px/1.4 Georgia,serif;margin:9px 0 0}
+  #speech footer{display:flex;align-items:center;justify-content:flex-end;margin-top:14px}
+  #speech button{font:inherit;border-radius:18px;padding:8px 16px;cursor:pointer}
+  #nextLine{border:2px solid #2c514a;background:#36685d;color:#fff9e9;box-shadow:0 2px 0 #26463f}
+  #speech button:focus-visible{outline:2px solid #97642f;outline-offset:2px}
+  @media(prefers-reduced-motion:no-preference){
+    #speech[open] .portrait{animation:peek-in .3s ease-out}
+    @keyframes peek-in{from{opacity:.5;transform:translateY(6px) rotate(-6deg)}to{opacity:1;transform:none}}
+  }
+  /* letter screen */
+  #letter{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:linear-gradient(#1e160dd9,#17100aeb)}
+  #letter .paper{box-sizing:border-box;width:min(92vw,660px);max-height:90%;overflow-y:auto;touch-action:pan-y;padding:clamp(18px,4vw,42px);color:#f5ecd8;
+    background:#ffffff08;border:1px solid #ffe9b022;border-radius:6px;line-height:1.6;font-size:clamp(20px,2.2vw,24px)}
+  #letter .paper .hd{font-size:clamp(25px,3vw,30px);color:#ffe9b0;letter-spacing:1px;text-align:center;margin-bottom:6%}
+  #letter .paper .bd{white-space:pre-wrap}
+  #letterMusicButton{display:block;margin:0 auto 1.25em;padding:.5em 1em;border:1px solid #b39662;border-radius:18px;background:#302419;color:#ffe9b0;font:inherit;cursor:pointer}
+  #letter .again{text-align:center;margin-top:6%;color:#ffe9b066;font-size:11px;letter-spacing:2px;text-transform:uppercase}
+  #resetChamber{position:fixed;z-index:6;right:calc((100vw - min(100vw,166.6667vh))/2 + 1%);top:calc((100vh - min(100vh,60vw))/2 + 1%);padding:7px 12px;background:#302215;color:#ffe9b0;border:1px solid #c09757;border-radius:4px;font:14px Georgia,serif;cursor:pointer}
+  #resetChamber:focus-visible{outline:3px solid white}
+  #resetChamber:disabled{opacity:0.6}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<button type="button" id="resetChamber" hidden>Reset chamber</button>
+<div id="hint">turn your phone sideways</div>
+<dialog closedby="none" id="speech" aria-labelledby="speaker">
+  <div class="speech-body">
+    <img class="portrait" src="assets/higgsfield/explorer-portrait.png" alt="">
+    <div><strong id="speaker">Explorer</strong><p id="line" aria-live="polite"></p></div>
+  </div>
+  <audio id="explorerVoice" preload="none"></audio>
+  <footer><button id="nextLine" autofocus>Next</button></footer>
+</dialog>
+<div id="cine">
+  <video id="roomLoop" src="assets/higgsfield/room1_loop.mp4" poster="assets/higgsfield/room1.png" muted autoplay loop playsinline aria-hidden="true"></video>
+  <div id="cineStage"><video id="endingFilm" src="assets/ending/1114.mp4" preload="none" playsinline controls aria-label="Final recording"></video></div>
+  <div id="letter">
+    <div class="paper">
+      <div class="hd" id="letterHd"></div>
+      <audio id="letterMusic" preload="none" loop src="assets/audio/letter-waltz.wav"></audio>
+      <button type="button" id="letterMusicButton">Play music</button>
+      <div class="bd" id="letterBody"></div>
+      <div class="again">you can return to the temple anytime</div>
+    </div>
+  </div>
+</div>
+<script src="vendor/phaser.min.js"></script>
+<script>if (typeof Phaser === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"><\/script>'); }</script>
+<script src="src/config.js"></script>
+<script src="src/systems.js"></script>
+<script src="src/entities/hero.js?v=altar2"></script>
+<script src="src/entities/tv.js?v=altar2"></script>
+<script src="src/scenes/boot.js?v=altar2"></script>
+<script src="src/scenes/stage.js?v=instant-continue"></script>
+<script src="src/ui/start.js"></script>
+<script src="src/scenes/stage1.js"></script>
+<script src="src/scenes/stage2.js"></script>
+<script src="src/scenes/stage3.js"></script>
+<script src="src/scenes/stage4.js"></script>
+<script src="src/ui/finale.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
