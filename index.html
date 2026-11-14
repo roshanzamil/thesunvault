@@ -41,14 +41,18 @@
   #letter .paper .bd{white-space:pre-wrap}
   #letterMusicButton{display:block;margin:0 auto 1.25em;padding:.5em 1em;border:1px solid #b39662;border-radius:18px;background:#302419;color:#ffe9b0;font:inherit;cursor:pointer}
   #letter .again{text-align:center;margin-top:6%;color:#ffe9b066;font-size:11px;letter-spacing:2px;text-transform:uppercase}
-  #resetChamber{position:fixed;z-index:6;right:calc((100vw - min(100vw,166.6667vh))/2 + 1%);top:calc((100vh - min(100vh,60vw))/2 + 1%);padding:7px 12px;background:#302215;color:#ffe9b0;border:1px solid #c09757;border-radius:4px;font:14px Georgia,serif;cursor:pointer}
-  #resetChamber:focus-visible{outline:3px solid white}
-  #resetChamber:disabled{opacity:0.6}
+  #chamberControls{position:fixed;z-index:6;right:calc((100vw - min(100vw,166.6667vh))/2 + 1%);top:calc((100vh - min(100vh,60vw))/2 + 1%);display:flex;gap:6px}
+  #chamberControls button{padding:7px 12px;background:#302215;color:#ffe9b0;border:1px solid #c09757;border-radius:4px;font:14px Georgia,serif;cursor:pointer}
+  #chamberControls button:focus-visible{outline:3px solid white}
+  #chamberControls button:disabled{opacity:0.6}
 </style>
 </head>
 <body>
 <div id="game"></div>
-<button type="button" id="resetChamber" hidden>Reset chamber</button>
+<div id="chamberControls">
+  <button type="button" id="skipLevel" hidden>Skip level</button>
+  <button type="button" id="resetChamber" hidden>Reset chamber</button>
+</div>
 <div id="hint">turn your phone sideways</div>
 <dialog closedby="none" id="speech" aria-labelledby="speaker">
   <div class="speech-body">
@@ -78,7 +82,7 @@
 <script src="src/entities/hero.js?v=altar2"></script>
 <script src="src/entities/tv.js?v=altar2"></script>
 <script src="src/scenes/boot.js?v=altar2"></script>
-<script src="src/scenes/stage.js?v=instant-continue"></script>
+<script src="src/scenes/stage.js?v=skip-level"></script>
 <script src="src/ui/start.js"></script>
 <script src="src/scenes/stage1.js"></script>
 <script src="src/scenes/stage2.js"></script>
