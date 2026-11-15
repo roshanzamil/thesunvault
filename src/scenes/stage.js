@@ -43,9 +43,6 @@ class StageBase extends Phaser.Scene {
     this.placeBoulders();
 
     var reset = document.getElementById('resetChamber');
-    var skip = document.getElementById('skipLevel');
-    skip.hidden = false;
-    skip.disabled = false;
     reset.hidden = false;
     reset.disabled = false;
     function retry() {
@@ -61,18 +58,12 @@ class StageBase extends Phaser.Scene {
         if (!e.repeat) retry();
       }
     }
-    // Use the normal deposit transition so the next chamber receives its correct progress.
-    skip.onclick = () => {
-      if (!sc.__busy && sc.scene.isActive()) sc.insertDisc();
-    };
     reset.addEventListener('keydown', useResetKey);
     reset.addEventListener('click', retry);
     this.events.once('shutdown', function() {
       reset.removeEventListener('keydown', useResetKey);
       reset.removeEventListener('click', retry);
       reset.hidden = true;
-      skip.hidden = true;
-      skip.onclick = null;
     });
     this.showTip('WASD / arrows or swipe to move · Push boulders onto pads · R to retry');
 
@@ -84,7 +75,6 @@ class StageBase extends Phaser.Scene {
       sc.hero.setHolding(null);
       GAME.holding = null;
       reset.disabled = true;
-      skip.disabled = true;
       sc.tv.playDisc(d);
       sc.tv.setProgress(GAME.progress + 1);
       sc.openDoor();
@@ -96,7 +86,7 @@ class StageBase extends Phaser.Scene {
     };
 
     this.input.keyboard.on('keydown-ENTER', function() {
-      if (document.activeElement !== reset && document.activeElement !== skip && GAME.holding && !sc.__busy) sc.insertDisc();
+      if (document.activeElement !== reset && GAME.holding && !sc.__busy) sc.insertDisc();
     });
     this.input.keyboard.on('keydown-R', function(e) {
       if (!e.repeat) retry();
